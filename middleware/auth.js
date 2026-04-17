@@ -1,28 +1,25 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
+const User = require('../models/user');
 
 const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '');
-        // dasfasgasgsagfasg
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const user = await User.findOne({
-            _id: decoded._id,
-        })
+
+        const user = await User.findById(decoded._id);
 
         if (!user) {
-            throw new Error('Unable to login , invalid credentials');
+            throw new Error();
         }
 
         req.user = user;
         req.token = token;
-        next();
 
+        next();
+    } catch (err) {
+        res.status(401).send({ error: 'Please authenticate' });
     }
-    catch (error) { 
-        res.status(401).send({ error: error.message});
-    }
-}
+};
 
 module.exports = auth;
